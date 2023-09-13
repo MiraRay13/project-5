@@ -1,0 +1,51 @@
+---
+- hosts: localhost
+  gather_facts: False
+  become: true  
+
+  tasks:
+
+    - name: Install Java OpenJDK
+      yum:
+        name: java-1.8.0-openjdk-devel
+
+    - name: Add Elastic repository definition for Elasticsearch, Logstash, and Kibana packages
+      yum_repository:
+        name: elastic.repo
+        description: Elasticsearch repository for Logstash and Kibana packages from Elastic Co.
+        baseurl: https://artifacts.elastic.co/packages/oss-6.x/yum/
+        gpgcheck: yes
+
+    - name : Install Elasticsearch, Logstash, and Kibana packages 
+      yum :
+        name : mobz/elasticsearch-head
+        state : present 
+
+    - name : Start Elasticsearch service 
+      service :
+         enabled : true 
+         state : started 
+         daemon_reload : yes 
+         name : mobz/elasticsearch-head
+
+    - name : Start Logstash service 
+      service :
+         enabled : true 
+         state : started 
+         daemon_reload : yes 
+         name : logstash 
+
+    - name : Start Kibana service
+      service :
+        enabled: true
+        state: started
+        daemon_reload: yes
+        name: kibana
+
+    - name: Enable Elasticsearch, Logstash, and Kibana services to start on boot
+      systemd:
+        name:
+          - elasticsearch.service
+          - logstash.service
+          - kibana.service
+        enabled: yes
